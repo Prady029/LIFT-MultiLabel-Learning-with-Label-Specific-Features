@@ -64,8 +64,8 @@ class LIFTTransformer(BaseEstimator, TransformerMixin):
 # ==== Example Usage ====
 if __name__ == "__main__":
     # Create synthetic dataset
-    X, Y = make_multilabel_classification(n_samples=500, n_features=20, n_classes=5,
-                                          n_labels=2, random_state=42)
+    X, Y, _, _ = make_multilabel_classification(n_samples=500, n_features=20, n_classes=5,
+                                                n_labels=2, random_state=42)
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
 
     # Build pipeline
