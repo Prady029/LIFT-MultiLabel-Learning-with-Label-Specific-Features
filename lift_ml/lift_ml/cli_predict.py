@@ -4,13 +4,13 @@ import joblib
 import numpy as np
 from sklearn.metrics import f1_score, precision_score, recall_score
 
-def parse_hybrid_thresholds(arg_string):
-    """Parse 'label_idx:thr,...' into dict {int: float}."""
+def parse_hybrid_thresholds_by_name(arg_string):
+    """Parse 'label_name:thr,...' into dict {str: float}."""
     mapping = {}
     for pair in arg_string.split(","):
         if ":" in pair:
-            idx, thr = pair.split(":")
-            mapping[int(idx.strip())] = float(thr.strip())
+            name, thr = pair.split(":")
+            mapping[name.strip()] = float(thr.strip())
     return mapping
 
 def find_best_threshold_fixed(y_true, probas, metric='f1', steps=101):
@@ -65,57 +65,68 @@ def main():
     parser.add_argument("--optimize-metric", type=str, choices=["f1", "precision", "recall"])
     parser.add_argument("--optimize-global", action="store_true")
     parser.add_argument("--hybrid-thresholds", type=str,
-                        help="Custom per-label overrides, format '0:0.8,3:0.3'")
+                        help="Custom per-label overrides by NAME, format 'labelA:0.8,labelB:0.3'")
     args = parser.parse_args()
 
+    # Load model
     clf = joblib.load(args.model)
 
+    # Load main dataset for prediction
     df = pd.read_csv(args.data)
-    df_features = df.drop(columns=args.drop_cols) if args.drop_cols else df
+    df_features = df.drop(columns=args.drop-cols) if args.drop_cols else df
 
+    # Predict probabilities
     probas_all = clf.predict_proba(df_features.values)
     probas = np.column_stack([p[:, 1] if p.shape[1] > 1 else p[:, 0] for p in probas_all])
-    probas_df = pd.DataFrame(probas, columns=[f"label_{i}_proba" for i in range(probas.shape[1])])
+    n_labels = probas.shape[1]
+
+    # Default label names if no target cols given (label_0, label_1,...)
+    label_names = [f"label_{i}" for i in range(n_labels)]
+    probas_df = pd.DataFrame(probas, columns=[f"{name}_proba" for name in label_names])
 
     thresholds = None
 
+    # Optimization
     if args.optimize_metric:
         if not args.val_data or not args.val_target_cols:
-            raise ValueError("Must provide --val-data and --val-target-cols for optimization.")
+            raise ValueError("Must provide --val-data and --val-target-cols for optimize-metric.")
+        label_names = args.val_target_cols  # Now we have actual names!
         val_df = pd.read_csv(args.val_data)
         y_val = val_df[args.val_target_cols].values
         X_val = val_df.drop(columns=args.val_target_cols).values
-
         val_probas_all = clf.predict_proba(X_val)
         val_probas = np.column_stack([p[:, 1] if p.shape[1] > 1 else p[:, 0] for p in val_probas_all])
 
         if args.optimize_global:
             global_thr = find_best_thresholds(y_val, val_probas, metric=args.optimize_metric, per_label=False)
-            thresholds = np.full(probas.shape[1], global_thr)
+            thresholds = np.full(n_labels, global_thr)
         else:
             thresholds = find_best_thresholds(y_val, val_probas, metric=args.optimize_metric, per_label=True)
 
     elif args.threshold is not None:
-        thresholds = np.full(probas.shape[1], args.threshold)
-    else:
-        thresholds = None  # model's default hard labels
+        thresholds = np.full(n_labels, args.threshold)
 
-    # Apply hybrid overrides
+    # Apply hybrid overrides by label name
     if args.hybrid_thresholds:
-        override_map = parse_hybrid_thresholds(args.hybrid_thresholds)
+        override_map = parse_hybrid_thresholds_by_name(args.hybrid_thresholds)
         if thresholds is None:
-            thresholds = np.full(probas.shape[1], 0.5)
-        for lbl_idx, thr in override_map.items():
-            thresholds[lbl_idx] = thr
-        print(f"Hybrid thresholds applied: {thresholds}")
+            thresholds = np.full(n_labels, 0.5)
+        for lbl_name, thr in override_map.items():
+            if lbl_name not in label_names:
+                raise ValueError(f"Label name '{lbl_name}' not found among: {label_names}")
+            idx = label_names.index(lbl_name)
+            thresholds[idx] = thr
+        print(f"Hybrid thresholds applied: {{name:thr for name,thr in zip(label_names, thresholds)}}")
 
+    # Generate predictions
     if thresholds is not None:
         predictions = (probas >= thresholds).astype(int)
     else:
         predictions = clf.predict(df_features.values)
 
-    preds_df = pd.DataFrame(predictions, columns=[f"label_{i}" for i in range(predictions.shape[1])])
+    preds_df = pd.DataFrame(predictions, columns=label_names)
 
+    # Decide output
     if args.both:
         out_df = pd.concat([preds_df, probas_df], axis=1)
     elif args.proba:
@@ -123,15 +134,16 @@ def main():
     else:
         out_df = preds_df
 
+    # Include original data or ID col
     if args.include_input and args.id_col:
-        print("⚠️ Both --include-input and --id-col provided. Using only --id-col.")
+        print("⚠️ Both --include-input and --id-col given. Using only --id-col.")
         args.include_input = False
     if args.include_input:
         out_df = pd.concat([df, out_df], axis=1)
     elif args.id_col:
         if args.id_col not in df.columns:
-            raise ValueError(f"ID column '{args.id_col}' not found.")
+            raise ValueError(f"ID column '{args.id_col}' not found in dataset.")
         out_df.insert(0, args.id_col, df[args.id_col])
 
     out_df.to_csv(args.output, index=False)
-    print(f"Output saved to {args.output}")
+    print(f"✅ Output saved to {args.output}")

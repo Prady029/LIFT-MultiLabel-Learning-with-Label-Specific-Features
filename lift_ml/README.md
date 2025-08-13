@@ -286,3 +286,57 @@ This gives **max flexibility**:
 - Global threshold for consistency
 - Fine-tuned per-label overrides if needed
 - Supports both **fixed** and **auto-optimized** setups
+
+### 1️⃣ Fixed global + specific label overrides
+
+```bash
+lift-predict \
+  --model lift_model.pkl \
+  --data new_data.csv \
+  --threshold 0.6 \
+  --hybrid-thresholds "spam:0.8,important:0.3" \
+  --both \
+  --output preds_hybrid_names.csv
+```
+
+
+***
+
+### 2️⃣ Optimized global + name-based overrides
+
+```bash
+lift-predict \
+  --model lift_model.pkl \
+  --data new_data.csv \
+  --val-data val_data.csv \
+  --val-target-cols spam important urgent \
+  --optimize-metric f1 \
+  --optimize-global \
+  --hybrid-thresholds "urgent:0.4" \
+  --both \
+  --output preds_hybrid_opt_names.csv
+```
+
+
+***
+
+### 3️⃣ Per-label auto-opt + one name override
+
+```bash
+lift-predict \
+  --model lift_model.pkl \
+  --data new_data.csv \
+  --val-data val_data.csv \
+  --val-target-cols spam important urgent \
+  --optimize-metric recall \
+  --hybrid-thresholds "important:0.9" \
+  --both \
+  --output preds_hybrid_perlabel_names.csv
+```
+
+Now we can specify **threshold overrides in human-friendly label names**, matching wer CSV column headers.
+It fully supports:
+
+- Fixed + override
+- Auto-optimized (global or per-label) + override
+- Mixing with `--include-input` and `--id-col`
