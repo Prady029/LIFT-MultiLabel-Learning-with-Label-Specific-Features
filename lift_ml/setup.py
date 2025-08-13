@@ -2,15 +2,22 @@ from setuptools import setup, find_packages
 
 setup(
     name="lift-ml",
-    version="0.1.0",
-    description="LIFT multi-label classifier with optional Bayesian optimization",
+    version="0.1.1",
+    description="LIFT multi-label classifier with optional Bayesian optimization and CLI",
     author="Your Name",
-    author_email="your.email@example.com",
+    author_email="you@example.com",
     packages=find_packages(),
     install_requires=[
         "scikit-learn>=1.0",
         "numpy>=1.20",
-        "scikit-optimize>=0.9.0"
+        "scikit-optimize>=0.9.0",
+        "pandas>=1.3",
+        "joblib>=1.0"
     ],
-    python_requires=">=3.7",
+    entry_points={
+        "console_scripts": [
+            "lift-train=lift_ml.cli:main",
+        ]
+    },
+    python_requires=">=3.7"
 )

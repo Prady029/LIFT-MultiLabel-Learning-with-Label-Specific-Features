@@ -23,4 +23,45 @@ In summary, LIFT enhances multi-label classification by performing feature const
 - In **real LIFT**, when transforming the test set, you should use the **cluster centers learned from the training set** rather than re-clustering test data. In my quick example, I re-clustered for the test just to keep the function call simple.
 - You can store the centers from training and apply them to compute distances for the test set.
 
+Once installed locally with:
+
+```bash
+pip install -e .
+```
+
+Now you can use it anywhere:
+
+```python
+from lift_ml import LIFTClassifier
+from sklearn.datasets import make_multilabel_classification
+from sklearn.model_selection import train_test_split
+
+X, Y = make_multilabel_classification(n_samples=500, n_features=20, n_classes=5, random_state=42)
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
+
+clf = LIFTClassifier(auto_tune=True, n_iter=15)
+clf.fit(X_train, Y_train)
+print("Macro F1:", clf.score(X_test, Y_test))
+```
+
+You can also run:
+
+```bash
+lift-train --data dataset.csv \
+           --target-cols label1 label2 label3 \
+           --k 3 \
+           --auto-tune \
+           --n-iter 15 \
+           --test-size 0.2 \
+           --model-out my_lift_model.pkl
+```
+
+This CLI will:
+
+1. Load your CSV file
+2. Split into features \& labels
+3. Train the LIFT model (with or without Bayesian tuning)
+4. Print macro-F1 score
+5. Save the trained model to a `.pkl` file
+
 ***
