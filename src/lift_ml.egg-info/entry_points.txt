@@ -1,0 +1,4 @@
+[console_scripts]
+lift-evaluate = lift_ml.cli:evaluate_main
+lift-predict = lift_ml.cli:predict_main
+lift-train = lift_ml.cli:train_main

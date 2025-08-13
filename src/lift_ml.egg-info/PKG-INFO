@@ -1,3 +1,44 @@
+Metadata-Version: 2.4
+Name: lift-ml
+Version: 0.2.0
+Summary: LIFT: Learning with Label-Specific Features for Multi-Label Classification
+Author-email: Your Name <your.email@example.com>
+License: MIT
+Project-URL: Homepage, https://github.com/Prady029/LIFT-MultiLabel-Learning-with-Label-Specific-Features
+Project-URL: Repository, https://github.com/Prady029/LIFT-MultiLabel-Learning-with-Label-Specific-Features
+Project-URL: Issues, https://github.com/Prady029/LIFT-MultiLabel-Learning-with-Label-Specific-Features/issues
+Keywords: machine-learning,multi-label,classification,feature-engineering
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: scikit-learn>=1.0.0
+Requires-Dist: numpy>=1.20.0
+Requires-Dist: scikit-optimize>=0.9.0
+Requires-Dist: pandas>=1.3.0
+Requires-Dist: joblib>=1.0.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: isort>=5.12.0; extra == "dev"
+Requires-Dist: flake8>=6.0.0; extra == "dev"
+Requires-Dist: mypy>=1.0.0; extra == "dev"
+Provides-Extra: docs
+Requires-Dist: sphinx>=5.0.0; extra == "docs"
+Requires-Dist: sphinx-rtd-theme>=1.2.0; extra == "docs"
+
 # LIFT: Learning with Label-Specific Features
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/release/python-380/)
@@ -209,3 +250,29 @@ If you use this implementation in your research, please cite:
 - Original LIFT algorithm concept from multi-label learning research
 - Built with [scikit-learn](https://scikit-learn.org/) ecosystem
 - Hyperparameter optimization powered by [scikit-optimize](https://scikit-optimize.github.io/)
+
+You can also run:
+
+```bash
+lift-train --data dataset.csv \
+```
+
+### Directory Structure
+```
+lift_ml/
+    __init__.py
+    cli.py
+    cli_predict.py
+    cli_threshold_report.py
+    cli_train.py
+    lift.py
+    lift_autohpo.py
+    lift_sklearn.py
+    lift_sklearn_compatible.py
+    lift_sklearn_pipeline.py
+```
+
+### Notes
+
+- When transforming the test set, use the **cluster centers learned from the training set** rather than re-clustering test data.
+- You can store the centers from training and apply them to compute distances for the test set.
