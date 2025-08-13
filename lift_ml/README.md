@@ -153,3 +153,79 @@ lift-predict --model lift_model.pkl --data new_data.csv --proba --threshold 0.4
 ***
 
 With this, your CLI now supports **custom decision thresholds** for any probability output scenario, which is essential when optimizing for recall or precision in multi-label classification.
+
+### 1. Automatic F1-based threshold optimization
+
+```bash
+lift-predict \
+  --model lift_model.pkl \
+  --data new_data.csv \
+  --val-data val_data.csv \
+  --val-target-cols label1 label2 label3 \
+  --optimize-metric f1 \
+  --both \
+  --output preds_auto_f1.csv
+```
+
+- Uses validation set to find best per-label thresholds that maximize **F1**.
+
+
+### 2. Optimize for recall but only output hard labels
+
+```bash
+lift-predict \
+  --model lift_model.pkl \
+  --data new_data.csv \
+  --val-data val_data.csv \
+  --val-target-cols label1 label2 \
+  --optimize-metric recall \
+  --output preds_max_recall.csv
+```
+
+
+### 3. Fixed threshold for comparison
+
+```bash
+lift-predict --model lift_model.pkl --data new_data.csv --threshold 0.7
+```
+- If you run with:
+
+```bash
+--optimize-metric f1 --optimize-global
+```
+
+It will:
+
+1. Load `--val-data` and `--val-target-cols`
+2. Try thresholds 0.00 → 1.00 in small steps
+3. Pick **ONE single threshold** for all labels that maximizes macro‑averaged F1, or the metric you choose.
+
+- If you **omit** `--optimize-global`, it defaults to **per‑label** thresholds.
+
+### **One global threshold for all labels (F1 metric)**
+
+```bash
+lift-predict \
+  --model lift_model.pkl \
+  --data new_data.csv \
+  --val-data val_data.csv \
+  --val-target-cols label1 label2 label3 \
+  --optimize-metric f1 \
+  --optimize-global \
+  --both \
+  --output preds_global_f1.csv
+```
+
+
+### **Compare with per-label optimization**
+
+```bash
+lift-predict \
+  --model lift_model.pkl \
+  --data new_data.csv \
+  --val-data val_data.csv \
+  --val-target-cols label1 label2 label3 \
+  --optimize-metric f1 \
+  --both \
+  --output preds_per_label_f1.csv
+```
