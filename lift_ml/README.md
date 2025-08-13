@@ -64,4 +64,21 @@ This CLI will:
 4. Print macro-F1 score
 5. Save the trained model to a `.pkl` file
 
-***
+**Training**
+
+```bash
+lift-train --data dataset.csv \
+           --target-cols label1 label2 label3 \
+           --k 3 --auto-tune --n-iter 15 \
+           --model-out lift_model.pkl
+```
+
+
+**Prediction**
+
+```bash
+lift-predict --model lift_model.pkl \
+             --data new_data.csv \
+             --drop-cols id \
+             --output preds.csv
+```
