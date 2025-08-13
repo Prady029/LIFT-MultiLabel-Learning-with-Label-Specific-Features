@@ -229,3 +229,60 @@ lift-predict \
   --both \
   --output preds_per_label_f1.csv
 ```
+
+### 1️⃣ Hybrid with fixed global
+
+Global = 0.6, Label 0 override to 0.8, Label 3 override to 0.3
+
+```bash
+lift-predict \
+  --model lift_model.pkl \
+  --data new_data.csv \
+  --threshold 0.6 \
+  --hybrid-thresholds "0:0.8,3:0.3" \
+  --both \
+  --output preds_hybrid.csv
+```
+
+
+***
+
+### 2️⃣ Hybrid with optimized global (F1) + overrides
+
+Global optimized on validation set, but loosen label 2
+
+```bash
+lift-predict \
+  --model lift_model.pkl \
+  --data new_data.csv \
+  --val-data val_data.csv \
+  --val-target-cols label1 label2 label3 \
+  --optimize-metric f1 \
+  --optimize-global \
+  --hybrid-thresholds "2:0.4" \
+  --both \
+  --output preds_hybrid_opt.csv
+```
+
+
+***
+
+### 3️⃣ Hybrid with per-label auto-opt, plus a hard-coded override
+
+Per-label auto-opt from validation, but set label 1 fixed at 0.9
+
+```bash
+lift-predict \
+  --model lift_model.pkl \
+  --data new_data.csv \
+  --val-data val_data.csv \
+  --val-target-cols label1 label2 label3 \
+  --optimize-metric recall \
+  --hybrid-thresholds "1:0.9" \
+  --output preds_hybrid_perlabel.csv
+```
+This gives **max flexibility**:
+
+- Global threshold for consistency
+- Fine-tuned per-label overrides if needed
+- Supports both **fixed** and **auto-optimized** setups
