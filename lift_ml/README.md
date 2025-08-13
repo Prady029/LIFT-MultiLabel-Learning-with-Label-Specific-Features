@@ -130,3 +130,26 @@ sample_id,label_0,label_1,...,label_0_proba,label_1_proba,...
 ```bash
 lift-predict --model lift_model.pkl --data new_data.csv --include-input --both --output full_preds.csv
 ```
+**1. Set a 0.7 threshold for binarization**
+
+```bash
+lift-predict --model lift_model.pkl --data new_data.csv --threshold 0.7 --output preds_70.csv
+```
+
+**2. Output both probabilities and thresholded labels**
+
+```bash
+lift-predict --model lift_model.pkl --data new_data.csv --both --threshold 0.7 --output preds_and_probas_70.csv
+```
+
+**3. Probabilities only, but threshold stored in separate labels**
+
+```bash
+lift-predict --model lift_model.pkl --data new_data.csv --proba --threshold 0.4
+```
+
+*(In this case, only probabilities appear, but labels are binarized internally for `--both` mode.)*
+
+***
+
+With this, your CLI now supports **custom decision thresholds** for any probability output scenario, which is essential when optimizing for recall or precision in multi-label classification.
