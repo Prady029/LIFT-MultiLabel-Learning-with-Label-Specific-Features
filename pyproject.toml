@@ -9,7 +9,7 @@ description = "LIFT: Learning with Label-Specific Features for Multi-Label Class
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "Your Name", email = "your.email@example.com"}
+    {name = "Pradyumna Kumar sahoo", email = "Prady029@duck.com"}
 ]
 classifiers = [
     "Development Status :: 4 - Beta",

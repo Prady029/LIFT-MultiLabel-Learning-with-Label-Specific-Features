@@ -198,7 +198,7 @@ If you use this implementation in your research, please cite:
 ```bibtex
 @software{lift_ml,
   title={LIFT-ML: Learning with Label-Specific Features for Multi-Label Classification},
-  author={Your Name},
+  author={Pradyumna Kumar Sahoo},
   year={2024},
   url={https://github.com/Prady029/LIFT-MultiLabel-Learning-with-Label-Specific-Features}
 }
