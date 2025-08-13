@@ -340,3 +340,70 @@ It fully supports:
 - Fixed + override
 - Auto-optimized (global or per-label) + override
 - Mixing with `--include-input` and `--id-col`
+
+### 1️⃣ Per-label optimization report
+
+```bash
+lift-threshold-report \
+  --model lift_model.pkl \
+  --val-data val_data.csv \
+  --val-target-cols spam important urgent \
+  --optimize-metric f1
+```
+
+Example output:
+
+```
+📊 LIFT Threshold Report
+----------------------------------------
+spam: 0.520
+important: 0.450
+urgent: 0.610
+----------------------------------------
+```
+
+
+***
+
+### 2️⃣ Global optimization report
+
+```bash
+lift-threshold-report \
+  --model lift_model.pkl \
+  --val-data val_data.csv \
+  --val-target-cols spam important urgent \
+  --optimize-metric recall \
+  --optimize-global
+```
+
+Output:
+
+```
+📊 LIFT Threshold Report
+----------------------------------------
+spam: 0.430
+important: 0.430
+urgent: 0.430
+----------------------------------------
+✅ Global threshold: 0.430 (applied to all labels)
+```
+
+
+***
+
+### 3️⃣ Hybrid overrides + CSV output
+
+```bash
+lift-threshold-report \
+  --model lift_model.pkl \
+  --val-data val_data.csv \
+  --val-target-cols spam important urgent \
+  --optimize-metric f1 \
+  --hybrid-thresholds "urgent:0.4" \
+  --output thresholds.csv
+```
+
+
+***
+
+✅ With this new CLI command, we can **audit thresholds before predicting** — ensuring we’re confident in wer cutoff settings.
