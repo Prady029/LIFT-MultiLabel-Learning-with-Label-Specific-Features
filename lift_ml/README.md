@@ -85,16 +85,20 @@ lift-predict --model lift_model.pkl \
 
 ### Examples:
 
-1. Hard label prediction (default)
+**1. Labels + Original Inputs**
 
 ```bash
-lift-predict --model lift_model.pkl --data new_data.csv --output preds.csv
+lift-predict --model lift_model.pkl --data new_data.csv --include-input
 ```
 
-
-2. Probability output
+**2. Probabilities + Original Inputs**
 
 ```bash
-lift-predict --model lift_model.pkl --data new_data.csv --proba --output pred_probas.csv
+lift-predict --model lift_model.pkl --data new_data.csv --proba --include-input
 ```
 
+**3. Labels + Probabilities + Original Inputs**
+
+```bash
+lift-predict --model lift_model.pkl --data new_data.csv --both --include-input
+```

@@ -10,7 +10,11 @@ def main():
     parser.add_argument("--output", type=str, default="predictions.csv", help="Path to save predictions CSV")
     parser.add_argument("--drop-cols", type=str, nargs="+", help="Columns to drop before prediction (e.g. IDs)")
     parser.add_argument("--proba", action="store_true",
-                        help="If set, output class probabilities instead of hard labels")
+                        help="If set, output only class probabilities instead of hard labels")
+    parser.add_argument("--both", action="store_true",
+                        help="If set, output both labels AND probabilities in the same file")
+    parser.add_argument("--include-input", action="store_true",
+                        help="If set, include the original input columns in the output CSV")
     args = parser.parse_args()
 
     # Load model
@@ -26,17 +30,27 @@ def main():
     else:
         df_features = df
 
-    if args.proba:
-        print("Predicting probabilities...")
-        probas_all = clf.predict_proba(df_features.values)
-        # predict_proba for multi-output classifier returns a list of arrays, one per label
-        # Convert to a 2D array by stacking probability of positive class
-        probas = np.column_stack([p[:, 1] if p.shape[1] > 1 else p[:, 0] for p in probas_all])
-        out_df = pd.DataFrame(probas, columns=[f"label_{i}_proba" for i in range(probas.shape[1])])
-    else:
-        print("Predicting labels...")
-        predictions = clf.predict(df_features.values)
-        out_df = pd.DataFrame(predictions, columns=[f"label_{i}" for i in range(predictions.shape[1])])
+    # Predictions
+    predictions = clf.predict(df_features.values)
+    preds_df = pd.DataFrame(predictions, columns=[f"label_{i}" for i in range(predictions.shape[1])])
 
+    # Probabilities
+    probas_all = clf.predict_proba(df_features.values)
+    probas = np.column_stack([p[:, 1] if p.shape[1] > 1 else p[:, 0] for p in probas_all])
+    probas_df = pd.DataFrame(probas, columns=[f"label_{i}_proba" for i in range(probas.shape[1])])
+
+    # Decide what to include
+    if args.both:
+        out_df = pd.concat([preds_df, probas_df], axis=1)
+    elif args.proba:
+        out_df = probas_df
+    else:
+        out_df = preds_df
+
+    # Optionally include original inputs
+    if args.include_input:
+        out_df = pd.concat([df, out_df], axis=1)
+
+    # Save to CSV
     out_df.to_csv(args.output, index=False)
     print(f"Output saved to {args.output}")
