@@ -15,10 +15,10 @@ setup(
         "joblib>=1.0"
     ],
     entry_points={
-        "console_scripts": [
-            "lift-train=lift_ml.cli_train:main",
-            "lift-predict=lift_ml.cli_predict:main",
-        ]
-    },
+    "console_scripts": [
+        "lift-train=lift_ml.cli_train:main",
+        "lift-predict=lift_ml.cli_predict:main",
+    ]
+},
     python_requires=">=3.7"
 )

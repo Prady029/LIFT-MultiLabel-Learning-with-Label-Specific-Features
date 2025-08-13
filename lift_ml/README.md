@@ -82,3 +82,19 @@ lift-predict --model lift_model.pkl \
              --drop-cols id \
              --output preds.csv
 ```
+
+### Examples:
+
+1. Hard label prediction (default)
+
+```bash
+lift-predict --model lift_model.pkl --data new_data.csv --output preds.csv
+```
+
+
+2. Probability output
+
+```bash
+lift-predict --model lift_model.pkl --data new_data.csv --proba --output pred_probas.csv
+```
+
