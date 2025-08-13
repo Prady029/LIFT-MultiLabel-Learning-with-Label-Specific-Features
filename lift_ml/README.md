@@ -102,3 +102,31 @@ lift-predict --model lift_model.pkl --data new_data.csv --proba --include-input
 ```bash
 lift-predict --model lift_model.pkl --data new_data.csv --both --include-input
 ```
+
+**4. Just predictions + row IDs**
+
+```bash
+lift-predict --model lift_model.pkl --data new_data.csv --id-col sample_id --output preds.csv
+```
+
+```
+sample_id,label_0,label_1,...
+```
+
+
+**4.Labels + probabilities + row IDs**
+
+```bash
+lift-predict --model lift_model.pkl --data new_data.csv --both --id-col sample_id --output preds_probas.csv
+```
+
+```
+sample_id,label_0,label_1,...,label_0_proba,label_1_proba,...
+```
+
+
+**5.Full dataset with predictions**
+
+```bash
+lift-predict --model lift_model.pkl --data new_data.csv --include-input --both --output full_preds.csv
+```
